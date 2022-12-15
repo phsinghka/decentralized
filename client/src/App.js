@@ -7,7 +7,11 @@ import Navbar from "./components/Navbar";
 import React from 'react'
 import Transactions from "./components/Transactions";
 import Wallet from "./components/Wallet";
-import "./App.css"
+import { Home } from "./Home";
+import { Signup } from "./components/Signup";
+import { Login } from "./components/Login";
+import { Invoices } from "./Invoices";
+import { PrivateRoutes } from "./components/PrivateRoute";
 
 export const App = () => {
   
@@ -16,12 +20,17 @@ export const App = () => {
 
   return (
     <BrowserRouter>
-      <Navbar/>
       <Routes>
+        <Route element={<PrivateRoutes/>}>
+          <Route path="/home" element={<Home />}/>
+          <Route path="/invoices" element={<Invoices />}/>
+
+        </Route>
               {/* <Route path="/transactions" element={<Transactions />} />
               <Route path="/transfer/:id" element={<Transfer/>} />
               <Route path="/wallet" element={<Wallet/>} /> */}
-              <Route path="/" element={<Home />}/>
+              <Route path="/login" element={<Login />}/>
+              <Route path="/signup" element={<Signup />}/>
         </Routes>
     </BrowserRouter>
     )

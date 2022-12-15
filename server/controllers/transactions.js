@@ -1,4 +1,4 @@
-const { Transaction } = require("./../model")
+const Transaction = require("../model/transaction");
 
 const getTransactionHistory = async (req, res) => {
     const transactions = await Transaction.find();
