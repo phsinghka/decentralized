@@ -1,97 +1,164 @@
 import React, { useContext } from 'react'
 import { AppContext } from './components/AppContext'
 import Navbar from './components/Navbar'
+import styled from 'styled-components'
 
 export const Home = () => {
   const { currentWallet } = useContext(AppContext)
-  
+
   const currentPlan = {
-    valid: true, 
-    plan: "plan1", 
+    valid: true,
+    plan: "plan1",
     last_payment: "11-11-2022",
     next_payment: "11-11-2022",
   }
 
   const payments = [
     {
-    amount: true, 
-    payment_date: "11-11-2022",
-    status: "open",
+      amount: true,
+      payment_date: "11-11-2022",
+      status: "open",
     },
     {
-      amount: true, 
+      amount: true,
       payment_date: "11-11-2022",
       status: "payed",
     },
   ]
 
   return (
-    <div>
-        <h1>Home</h1>
-        <Navbar/>
-        
-        <div>
-            <h4>Email:</h4>
-            <label></label>
-        </div>
-       
-        <div>
-            <h4>Wallet</h4>
-            {
-              currentWallet ?
-              <>
+    <Layout>
+      <h1>Home</h1>
+      <Navbar />
+
+      <UserSection>
+        <h3>User</h3>
+        <Card>
+
+          <h4>Email:</h4>
+          <label></label>
+        </Card>
+      </UserSection>
+
+      <WalletSection>
+        <Card>
+          <h4>Wallet</h4>
+          {
+            currentWallet ?
+              <Row>
                 <label>{currentWallet}</label>
-                <button>Set Wallet</button>
-              </>
+                <BtnWallet>Set Wallet</BtnWallet>
+              </Row>
               :
-              <>
+              <Row>
                 <input placeholder='wallet'></input>
-                <button>Set Wallet</button> 
-              </>
-            }
-        </div>
-        
-        <div>
-            {/* Plan Info */}
-            <div>
-              {
-                currentPlan ?
-                <div>
-                  {
+                <BtnWallet>Set Wallet</BtnWallet>
+              </Row>
+          }
+        </Card>
+      </WalletSection>
+
+      <div>
+        {/* Plan Info */}
+        <CurrentPlanCard>
+          <h3>Plan</h3>
+          {
+            currentPlan ?
+              <Card>
+                {
                   Object.entries(currentPlan).map(
                     entry => {
                       return (
-                        <>
-                          <h3>{entry[0]}:</h3>
+                        <Row>
+                          <h3>{entry[0]}: ----</h3>
                           <h3>{entry[1]}</h3>
-                        </>
+                        </Row>
                       )
                     }
                   )
-                  }
-                </div> :
-                <></>
-              }
-            </div>
+                }
+              </Card> :
+              <></>
+          }
+        </CurrentPlanCard>
 
-            {/* Paymentes */}
-            <div>
-              {
-                payments.map(payment => {
-                  console.log(payment);
-                  return Object.entries(payment).map(entry => {
+        {/* Paymentes */}
+        <PaymentsSection>
+          <h3>Payments</h3>
+          {
+            payments.map(payment => {
+              console.log(payment);
+              return (
+                <Card>
+                  {Object.entries(payment).map(entry => {
                     console.log(entry)
                     return (
-                      <div>
-                        <h3>{entry[0]}</h3>
+                      <Row>
+                        <h3>{entry[0]} --- </h3>
                         <h3>{entry[1]}</h3>
-                      </div>
+                      </Row>
                     )
-                  })
-                })
-              }
-            </div>
-        </div>
-    </div>
+                  })}
+                </Card>
+              )
+
+
+            })
+          }
+        </PaymentsSection>
+      </div>
+    </Layout>
   )
 }
+
+const Layout = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 20px
+`
+
+const Row = styled.div`
+  display: flex;
+`
+
+const UserSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  padding: 20px
+`
+
+const WalletSection = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  padding: 20px;
+`
+
+const CurrentPlanCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  padding: 20px;
+`
+
+const BtnWallet = styled.button`
+  width: 50px
+`
+
+const PaymentsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  margin-top: 20px;
+  padding: 20px;
+
+  `
+
+const Card = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  margin-top: 20px
+`

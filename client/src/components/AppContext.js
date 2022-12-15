@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { createAccount } from "./function";
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
@@ -11,6 +12,7 @@ export const AppContextProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [receipt, setReceipt] = useState(false);
+
   // const getBalance = async(wallet) => {
   //   console.log(`http://localhost:4000/account/balance/${wallet}`);
   //   const response = await axios.get(`http://localhost:4000/account/balance/${wallet}`);
@@ -41,7 +43,8 @@ export const AppContextProvider = ({ children }) => {
       value={{
         currentWallet,
         invoices,
-        setInvoices
+        setInvoices, 
+        createAccount
       }}
     >
       {children}

@@ -24,12 +24,11 @@ export const App = () => {
         <Route element={<PrivateRoutes/>}>
           <Route path="/home" element={<Home />}/>
           <Route path="/invoices" element={<Invoices />}/>
-
         </Route>
               {/* <Route path="/transactions" element={<Transactions />} />
               <Route path="/transfer/:id" element={<Transfer/>} />
               <Route path="/wallet" element={<Wallet/>} /> */}
-              <Route path="/login" element={<Login />}/>
+              <Route path="/" element={<Login />}/>
               <Route path="/signup" element={<Signup />}/>
         </Routes>
     </BrowserRouter>
