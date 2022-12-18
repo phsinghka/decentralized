@@ -12,19 +12,19 @@ import { Signup } from "./components/Signup";
 import { Login } from "./components/Login";
 import { Invoices } from "./Invoices";
 import { PrivateRoutes } from "./components/PrivateRoute";
+import { BuyInsurance } from "./BuyInsurance";
 
 export const App = () => {
   
   const context = useContext(AppContext)
   const { currentWallet } = context;
 
-  
-
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes/>}>
           <Route path="/home" element={<Home />}/>
+          <Route path="/buy_insurance" element={<BuyInsurance />}/>
           <Route path="/invoices" element={<Invoices />}/>
         </Route>
               {/* <Route path="/transactions" element={<Transactions />} />
