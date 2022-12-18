@@ -1,12 +1,29 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { createAccount } from "./function";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { createAccount } from './function';
+
+import { ethers } from 'ethers';
+import { contractAddress, contractAbi } from '../utils/constants';
+
+const getContract = () => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    'http://localhost:8545'
+  );
+  const signer = provider.getSigner();
+  const insuranceContract = new ethers.Contract(
+    contractAddress,
+    contractAbi,
+    signer
+  );
+  return insuranceContract;
+};
+
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
   const [currentWallet, setCurrentWallet] = useState(null);
   const [invoices, setInvoices] = useState([]);
-  const [ user, setUser] = useState(null)
+  const [user, setUser] = useState(null);
 
   const [addresses, setAddresses] = useState([]);
   const [balance, setBalance] = useState(0);
@@ -27,28 +44,45 @@ export const AppContextProvider = ({ children }) => {
   //   getBalance(response.data.addresses[1]._id)
   // };
 
-  const fetchTransactions = async () => {
-    const response = await axios.get(
-      "http://localhost:4000/transaction/history"
-    );
-    setTransactions(response.data.transactions)
+  const buyInsurance = async () => {
+    console.log('sdaf');
+    const insuranceContract = getContract();
+    console.log(insuranceContract);
+    try {
+      const response = await insuranceContract.setNewClient({
+        value: ethers.utils.parseEther(
+          Number(
+            ethers.utils.formatEther(await insuranceContract.monthlyPremium())
+          ).toString()
+        ),
+      });
+      const tx = await response.wait();
+      console.log('Got The insurance', tx);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  useEffect(() => {
-    
-  }, []);
+  const fetchTransactions = async () => {
+    const response = await axios.get(
+      'http://localhost:4000/transaction/history'
+    );
+    setTransactions(response.data.transactions);
+  };
+
+  useEffect(() => {}, []);
 
   return (
     <AppContext.Provider
       value={{
         currentWallet,
         invoices,
-        setInvoices, 
-        createAccount
+        setInvoices,
+        createAccount,
+        buyInsurance,
       }}
     >
       {children}
     </AppContext.Provider>
   );
 };
-
