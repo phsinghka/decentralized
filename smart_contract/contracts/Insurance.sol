@@ -18,12 +18,12 @@ contract Insurance {
 
     
     struct Client{
-        uint insuredAmount;
         uint monthlyPremium;
         uint coverageAmount;
         bool isInsuranceActive;
         bool isClaimActive;
         uint claimAmount;
+        address claimHospitalAddress;
     }
     
     mapping(address =>   Client) clientMap;
@@ -49,15 +49,22 @@ contract Insurance {
         _;
     }
 
+    modifier isClient{
+        require(clientMap[msg.sender].isInsuranceActive, 'Insurance is not active on this address');
+        _;
+    }
+
     //GET FUNCTIONS
 
     function getInsuredAmount(address addr) public view isHospital returns(uint){
-        return clientMap[addr].insuredAmount;
+        return clientMap[addr].coverageAmount;
     }
 
     function getInsuranceStatus(address addr) public view isHospital returns(bool){
         return clientMap[addr].isInsuranceActive;
     }
+
+    
 
 
     //SET FUNCTIONS
@@ -69,23 +76,35 @@ contract Insurance {
 
     function setNewClient() public payable{
         require(msg.value == 0.01 ether,'Premium should be in 0.01 Ether');
+        clientMap[msg.sender].isClaimActive = true;
         clientMap[msg.sender].monthlyPremium =  msg.value;
-
-
+        clientMap[msg.sender].coverageAmount =  10 ether;
+        clientMap[msg.sender].isClaimActive =  false;
+        clientMap[msg.sender].isInsuranceActive =  true;
     }
 
     function payPremium() public payable{
         require(msg.value == 0.01 ether,'Premium should be in 0.01 Ether');
-        uint temp = clientMap[msg.sender].monthlyPremium +msg.value;
+        uint temp = clientMap[msg.sender].monthlyPremium + msg.value;
         clientMap[msg.sender].monthlyPremium =  temp;
     }
 
-    function fileClaim(address clientAddress, uint claimAmount) public {
+    function acceptClaim() public isClient{
+        require(address(this).balance>= clientMap[msg.sender].claimAmount, 'Not Enough balance in Contract. Please Try again !!');
+        uint temp = clientMap[msg.sender].coverageAmount - clientMap[msg.sender].claimAmount;
+        clientMap[msg.sender].coverageAmount = temp;
+        payable(address(this)).transfer(clientMap[msg.sender].claimAmount);
+    }
+
+    function fileClaim(address clientAddress, uint claimAmount) public isHospital{
         require(!clientMap[clientAddress].isInsuranceActive,'Client Insurance is not active, Please ak them to pay the premium !');
         require(!clientMap[clientAddress].isClaimActive,'Client Has another active claim, Please resolve the previos claim to file new claim !');
-
+        require(address(this).balance>= claimAmount, 'Not Enough balance in Contract. Please Try again !!');
         require(clientMap[clientAddress].coverageAmount >= claimAmount, 'Claim is bigger than remaining coverage amount');
 
+        clientMap[clientAddress].claimAmount = claimAmount;
+        clientMap[clientAddress].isClaimActive = true;
+        clientMap[clientAddress].claimHospitalAddress = msg.sender;
     }
 
 
