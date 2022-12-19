@@ -1,16 +1,23 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { AppContext } from './components/AppContext'
 import Navbar from './components/Navbar'
 import styled from 'styled-components'
 
 export const Home = () => {
-  const { currentWallet } = useContext(AppContext)
+  const { currentWallet, setCurrentWallet, updatePlanStatus, planObject } = useContext(AppContext)
+  const [input, setInput] = useState("")
 
   const currentPlan = {
     valid: true,
     plan: "plan1",
     last_payment: "11-11-2022",
     next_payment: "11-11-2022",
+  }
+
+  const handleWallet = (input) => {
+    console.log("Handling Wallet", input)
+    setCurrentWallet(input)
+    updatePlanStatus(input)
   }
 
   const payments = [
@@ -25,6 +32,9 @@ export const Home = () => {
       status: "payed",
     },
   ]
+
+  console.log("WIPI", planObject);
+
 
   return (
     <Layout>
@@ -47,12 +57,22 @@ export const Home = () => {
             currentWallet ?
               <Row>
                 <label>{currentWallet}</label>
-                <BtnWallet>Set Wallet</BtnWallet>
+                <BtnWallet
+                  onClick={() => {
+      
+                  }}
+                >Edit Wallet</BtnWallet>
               </Row>
               :
               <Row>
-                <input placeholder='wallet'></input>
-                <BtnWallet>Set Wallet</BtnWallet>
+                <input placeholder='wallet' onChange={
+                  (e) =>setInput(e.target.value)
+                }></input>
+                <BtnWallet
+                  onClick={() => {
+                    handleWallet(input)
+                  }}
+                >Set Wallet</BtnWallet>
               </Row>
           }
         </Card>
@@ -63,20 +83,17 @@ export const Home = () => {
         <CurrentPlanCard>
           <h3>Plan</h3>
           {
-            currentPlan ?
+            planObject.length > 0 ?
               <Card>
                 {
-                  Object.entries(currentPlan).map(
-                    entry => {
-                      return (
-                        <Row>
-                          <h3>{entry[0]}: ----</h3>
-                          <h3>{entry[1]}</h3>
-                        </Row>
-                      )
-                    }
+                planObject.map(entry => {
+                  return (
+                  <Row>
+                    <h3>{entry[0]}: &nbsp; &nbsp;</h3>
+                    <h3>{entry[1]}</h3>
+                  </Row>
                   )
-                }
+                })}
               </Card> :
               <></>
           }

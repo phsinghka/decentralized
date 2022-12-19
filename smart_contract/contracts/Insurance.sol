@@ -57,17 +57,17 @@ contract Insurance {
     }
 
     modifier InsuranceActive(address addr){
-        require(clientMap[addr].isInsuranceActive,'Insrance on this address is not active');
+        require(clientMap[addr].isInsuranceActive,'Insurance on this address is not active');
         _;
     }
 
     //GET FUNCTIONS
 
-    function getInsuredAmount(address addr) public view isHospital InsuranceActive(addr) returns(uint){
+    function getInsuredAmount(address addr) public view InsuranceActive(addr) returns(uint){
         return clientMap[addr].coverageAmount;
     }
 
-    function getInsuranceStatus(address addr) public view isHospital InsuranceActive(addr) returns(bool){
+    function getInsuranceStatus(address addr) public view InsuranceActive(addr) returns(bool){
         return clientMap[addr].isInsuranceActive;
     }
 
