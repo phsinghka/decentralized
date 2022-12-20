@@ -1,7 +1,7 @@
 
 const createAccount = async (account) => {
     const parsedBody = JSON.stringify(account)
-    const response = await fetch( "http://localhost:4000/register", {
+    const response = await fetch( "http://localhost:4000/auth/signup", {
         method: "POST",
         body: parsedBody,
         headers: {
@@ -10,12 +10,13 @@ const createAccount = async (account) => {
     })
     
     const body = await response.json();
-    console.log(body);
+    return body
 };
 
 const loginAccount = async (account) => {
     const parsedBody = JSON.stringify(account)
-    const response = await fetch( "http://localhost:4000/login", {
+    console.log(parsedBody);
+    const response = await fetch( "http://localhost:4000/auth/login", {
         method: "POST",
         body: parsedBody,
         headers: {
@@ -24,7 +25,7 @@ const loginAccount = async (account) => {
     })
     
     const body = await response.json();
-    console.log(body);
+    return body
 };
 
-module.exports = { createAccount };
+module.exports = { createAccount, loginAccount };
