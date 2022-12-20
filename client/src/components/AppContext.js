@@ -1,14 +1,15 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { createAccount } from './function';
-
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { contractAddress, contractAbi } from '../utils/constants';
+import toast from 'react-hot-toast';
+
+
+const { ethereum } = window;
 
 const getContract = () => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'http://localhost:8545'
-  );
+  const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
   const insuranceContract = new ethers.Contract(
     contractAddress,
@@ -21,11 +22,33 @@ const getContract = () => {
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
+  const connectWallet = async () => {
+    if (!ethereum) return toast.error('Please Install Metamask');
+    const notification = toast.loading('Logging in !!');
+    try {
+      console.log('Here');
+      const getAccount = await ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      setCurrentAccount(getAccount[0]);
+      toast.success('Logged In', {
+        id: notification,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message, {
+        id: notification,
+      });
+    }
+  };
+
   const insuranceContract = getContract();
   console.log(insuranceContract);
 
+  const [currentAccount, setCurrentAccount] = useState(null);
+
   const [currentWallet, setCurrentWallet] = useState(null);
-  const [planObject, setPlanObject] = useState([])
+  const [planObject, setPlanObject] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [user, setUser] = useState(null);
   const [addresses, setAddresses] = useState([]);
@@ -34,46 +57,47 @@ export const AppContextProvider = ({ children }) => {
   const [receipt, setReceipt] = useState(false);
 
   const updatePlanStatus = async (wallet) => {
-    
     // Get Start Date
     const promise1 = new Promise(async (resolve, reject) => {
       try {
         const response = await insuranceContract.getInsuranceStartDate(wallet);
-        const tx = await response
+        const tx = await response;
         //.wait();
         const data = await tx.toString();
         var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
         d.setUTCSeconds(data);
-        resolve(d.toString())
+        resolve(d.toString());
       } catch (error) {
-        reject(error)
+        reject(error);
       }
     });
     // Get Insured Amount
     const promise2 = new Promise(async (resolve, reject) => {
       try {
         const response = await insuranceContract.getInsuredAmount(wallet);
-        const tx = await response
+        const tx = await response;
         const data = ethers.utils.formatEther(tx.toString());
-        resolve(data)
+        resolve(data);
       } catch (error) {
         console.log(error);
-        reject(error)
+        reject(error);
       }
     });
 
     // Get Insurance Next Installment
     const promise3 = new Promise(async (resolve, reject) => {
       try {
-        const response = await insuranceContract.getInsuranceNextInstallment(wallet);
-        const tx = await response
+        const response = await insuranceContract.getInsuranceNextInstallment(
+          wallet
+        );
+        const tx = await response;
         const data = await tx.toString();
         var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
         d.setUTCSeconds(data);
-        resolve(d.toString())
+        resolve(d.toString());
       } catch (error) {
-        console.log(error)
-        reject(error)
+        console.log(error);
+        reject(error);
       }
     });
 
@@ -83,26 +107,33 @@ export const AppContextProvider = ({ children }) => {
         const response = await insuranceContract.getInsuranceStatus(wallet);
         const tx = await response;
         const data = await tx.toString();
-        resolve(data)
+        resolve(data);
       } catch (error) {
         console.log(error);
-        reject(error)
+        reject(error);
       }
     });
 
-    const result = Promise.all([promise1, promise2, promise3, promise4]).then((result) => {
-      const [ startDate, insuredAmount, insuranceNextInstallment, insuredStatus] = result;
+    const result = Promise.all([promise1, promise2, promise3, promise4]).then(
+      (result) => {
+        const [
+          startDate,
+          insuredAmount,
+          insuranceNextInstallment,
+          insuredStatus,
+        ] = result;
 
-      const obj = {
-        startDate,
-        insuredAmount,
-        insuranceNextInstallment,
-        insuredStatus
+        const obj = {
+          startDate,
+          insuredAmount,
+          insuranceNextInstallment,
+          insuredStatus,
+        };
+        const entries = Object.entries(obj);
+        setPlanObject(entries);
       }
-      const entries = Object.entries(obj);
-      setPlanObject(entries)
-    })
-  }
+    );
+  };
 
   // const getBalance = async(wallet) => {
   //   console.log(`http://localhost:4000/account/balance/${wallet}`);
@@ -134,6 +165,37 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const buyLicence = async () => {
+    try {
+      const response = await insuranceContract.setNewHospital({
+        value: ethers.utils.parseEther(
+          Number(
+            ethers.utils.formatEther(await insuranceContract.hospitalDeposit())
+          ).toString()
+        ),
+      });
+      const tx = await response.wait();
+      console.log('Got The Hospital Licence', tx);
+    } catch (error) {
+      console.log(error); 
+    }
+  };
+
+  const fileClaim = async (clientAddress, claimAmount) => {
+    console.log(claimAmount);
+    const toWei = claimAmount * (10**18)
+    
+    const bigNum = await BigNumber.from(toWei.toString());
+    console.log(bigNum);
+    try {
+      const response = await insuranceContract.fileClaim(clientAddress, bigNum );
+      const tx = await response.wait();
+      console.log('Got The Hospital Licence', tx);
+    } catch (error) {
+      console.log(error); 
+    }
+  };
+
   const fetchTransactions = async () => {
     const response = await axios.get(
       'http://localhost:4000/transaction/history'
@@ -141,7 +203,7 @@ export const AppContextProvider = ({ children }) => {
     setTransactions(response.data.transactions);
   };
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   return (
     <AppContext.Provider
@@ -152,9 +214,12 @@ export const AppContextProvider = ({ children }) => {
         setInvoices,
         createAccount,
         buyInsurance,
-        updatePlanStatus, 
+        updatePlanStatus,
         planObject,
-        setPlanObject
+        setPlanObject,
+        connectWallet,
+        buyLicence,
+        fileClaim
       }}
     >
       {children}

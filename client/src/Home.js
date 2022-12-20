@@ -4,7 +4,7 @@ import Navbar from './components/Navbar'
 import styled from 'styled-components'
 
 export const Home = () => {
-  const { currentWallet, setCurrentWallet, updatePlanStatus, planObject } = useContext(AppContext)
+  const { currentWallet, setCurrentWallet, updatePlanStatus, planObject, connectWallet } = useContext(AppContext)
   const [input, setInput] = useState("")
 
   const currentPlan = {
