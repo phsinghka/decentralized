@@ -79,8 +79,8 @@ contract Insurance {
         return clientMap[addr].nextInstallment;
     }
 
-    function getActiveClaims (address addr) public view InsuranceActive(addr) returns(bool) {
-        return clientMap[addr].isClaimActive;
+    function getActiveClaims (address addr) public view InsuranceActive(addr) returns(bool, uint, address) {
+        return (clientMap[addr].isClaimActive,clientMap[addr].claimAmount, clientMap[addr].claimHospitalAddress);
     }
 
     
