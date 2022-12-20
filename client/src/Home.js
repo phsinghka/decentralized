@@ -57,11 +57,11 @@ export const Home = () => {
             currentWallet ?
               <Row>
                 <label>{currentWallet}</label>
-                <BtnWallet
+                {/* <BtnWallet
                   onClick={() => {
       
                   }}
-                >Edit Wallet</BtnWallet>
+                >Edit Wallet</BtnWallet> */}
               </Row>
               :
               <Row>

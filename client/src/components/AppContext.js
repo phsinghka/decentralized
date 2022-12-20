@@ -59,6 +59,10 @@ export const AppContextProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [receipt, setReceipt] = useState(false);
 
+
+  const [showPayButton, setShowPayButton] = useState(false);
+  const [claimData, setClaimData] = useState({});
+
   const updatePlanStatus = async (wallet) => {
     // Get Start Date
     const promise1 = new Promise(async (resolve, reject) => {
@@ -177,9 +181,11 @@ export const AppContextProvider = ({ children }) => {
 
   const getClaim = async () => {
     try {
-      const response = await insuranceContract.getActiveClaims("0xfc516cdf0902B6ff0AA41BfDBDE4022873857B56");
+      const response = await insuranceContract.getActiveClaims(user.wallet_address);
       console.log("Getting the claim");
       console.log('This is your claim', response);
+      setClaimData(response)
+      setShowPayButton(true)
     } catch (error) {
       console.log(error);
     }
@@ -263,7 +269,10 @@ export const AppContextProvider = ({ children }) => {
         setUser,
         loginToken,
         setLoginToken,
-        logout
+        logout,
+        showPayButton, 
+        setShowPayButton,
+        claimData
       }}
     >
       {children}

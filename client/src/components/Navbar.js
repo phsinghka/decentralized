@@ -15,6 +15,11 @@ export default function Navbar
           <li className='navbar-li'>
             <Link className='navbar-link' to="/transactions">Home</Link>
           </li>
+
+          <li className='navbar-li'>
+            <Link className='navbar-link' to="/buy_insurance">Buy Insurance</Link>
+          </li>
+
           <li className='navbar-li'>
             <Link className='navbar-link' to="/accept_claim">Pay Claim</Link>
           </li>
