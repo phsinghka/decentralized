@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { createAccount } from './function';
-
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { contractAddress, contractAbi } from '../utils/constants';
+import toast from 'react-hot-toast';
+
 
 const { ethereum } = window;
 
@@ -21,8 +22,30 @@ const getContract = () => {
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
+  const connectWallet = async () => {
+    if (!ethereum) return toast.error('Please Install Metamask');
+    const notification = toast.loading('Logging in !!');
+    try {
+      console.log('Here');
+      const getAccount = await ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      setCurrentAccount(getAccount[0]);
+      toast.success('Logged In', {
+        id: notification,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message, {
+        id: notification,
+      });
+    }
+  };
+
   const insuranceContract = getContract();
   console.log(insuranceContract);
+
+  const [currentAccount, setCurrentAccount] = useState(null);
 
   const [currentWallet, setCurrentWallet] = useState(null);
   const [planObject, setPlanObject] = useState([]);
@@ -142,6 +165,37 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const buyLicence = async () => {
+    try {
+      const response = await insuranceContract.setNewHospital({
+        value: ethers.utils.parseEther(
+          Number(
+            ethers.utils.formatEther(await insuranceContract.hospitalDeposit())
+          ).toString()
+        ),
+      });
+      const tx = await response.wait();
+      console.log('Got The Hospital Licence', tx);
+    } catch (error) {
+      console.log(error); 
+    }
+  };
+
+  const fileClaim = async (clientAddress, claimAmount) => {
+    console.log(claimAmount);
+    const toWei = claimAmount * (10**18)
+    
+    const bigNum = await BigNumber.from(toWei.toString());
+    console.log(bigNum);
+    try {
+      const response = await insuranceContract.fileClaim(clientAddress, bigNum );
+      const tx = await response.wait();
+      console.log('Got The Hospital Licence', tx);
+    } catch (error) {
+      console.log(error); 
+    }
+  };
+
   const fetchTransactions = async () => {
     const response = await axios.get(
       'http://localhost:4000/transaction/history'
@@ -163,6 +217,9 @@ export const AppContextProvider = ({ children }) => {
         updatePlanStatus,
         planObject,
         setPlanObject,
+        connectWallet,
+        buyLicence,
+        fileClaim
       }}
     >
       {children}

@@ -13,6 +13,8 @@ import { Login } from "./components/Login";
 import { Invoices } from "./Invoices";
 import { PrivateRoutes } from "./components/PrivateRoute";
 import { BuyInsurance } from "./BuyInsurance";
+import GetLicence from "./components/GetLicence";
+import FileClaim from "./components/FileClaim";
 
 export const App = () => {
   
@@ -22,9 +24,11 @@ export const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<PrivateRoutes/>}>
+        <Route element={<PrivateRoutes/>} >
           <Route path="/home" element={<Home />}/>
           <Route path="/buy_insurance" element={<BuyInsurance />}/>
+          <Route path="/get_licence" element={<GetLicence />}/>
+          <Route path="/file_claim" element={<FileClaim />}/>
           <Route path="/invoices" element={<Invoices />}/>
         </Route>
               {/* <Route path="/transactions" element={<Transactions />} />
