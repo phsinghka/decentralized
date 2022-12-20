@@ -79,6 +79,10 @@ contract Insurance {
         return clientMap[addr].nextInstallment;
     }
 
+    function getActiveClaims (address addr) public view InsuranceActive(addr) returns(bool) {
+        return clientMap[addr].isClaimActive;
+    }
+
     
 
 
@@ -91,7 +95,7 @@ contract Insurance {
 
     function setNewClient() public payable{
         require(msg.value == 0.01 ether,'Premium should be in 0.01 Ether');
-        clientMap[msg.sender].isClaimActive = true;
+
         clientMap[msg.sender].monthlyPremium =  msg.value;
         clientMap[msg.sender].coverageAmount =  10 ether;
         clientMap[msg.sender].isClaimActive =  false;
@@ -123,7 +127,6 @@ contract Insurance {
         if(block.timestamp>clientMap[clientAddress].nextInstallment){
             clientMap[clientAddress].isInsuranceActive = false;
         }
-        claimAmount = claimAmount * (10 ** 18);
         require(!clientMap[clientAddress].isClaimActive,'Client Has another active claim, Please resolve the previos claim to file new claim !');
         require(address(this).balance>= claimAmount , 'Not Enough balance in Contract. Please Try again !!');
         require(clientMap[clientAddress].coverageAmount >= claimAmount, 'Claim is bigger than remaining coverage amount');
