@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { createAccount } from './function';
+import { createAccount, loginAccount } from './function';
 import { ethers, BigNumber } from 'ethers';
 import { contractAddress, contractAbi } from '../utils/constants';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 
 const { ethereum } = window;
@@ -45,16 +46,22 @@ export const AppContextProvider = ({ children }) => {
   const insuranceContract = getContract();
   console.log(insuranceContract);
 
+
   const [currentAccount, setCurrentAccount] = useState(null);
 
   const [currentWallet, setCurrentWallet] = useState(null);
   const [planObject, setPlanObject] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [user, setUser] = useState(null);
+  const [loginToken, setLoginToken] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [receipt, setReceipt] = useState(false);
+
+
+  const [showPayButton, setShowPayButton] = useState(false);
+  const [claimData, setClaimData] = useState({});
 
   const updatePlanStatus = async (wallet) => {
     // Get Start Date
@@ -135,6 +142,19 @@ export const AppContextProvider = ({ children }) => {
     );
   };
 
+  const logout = () => {
+    setCurrentAccount(null)
+    setCurrentWallet(null);
+    setPlanObject([]);
+    setInvoices([]);
+    setUser(null);
+    setLoginToken(false);
+    setAddresses([]);
+    setBalance(0);
+    setTransactions([]);
+    setReceipt(false);
+  }
+
   // const getBalance = async(wallet) => {
   //   console.log(`http://localhost:4000/account/balance/${wallet}`);
   //   const response = await axios.get(`http://localhost:4000/account/balance/${wallet}`);
@@ -148,6 +168,28 @@ export const AppContextProvider = ({ children }) => {
   //   setCurrentWallet(response.data.addresses[1]._id);
   //   getBalance(response.data.addresses[1]._id)
   // };
+
+  const acceptClaim = async () => {
+    try {
+      const response = await insuranceContract.acceptClaim();
+      const tx = await response.wait();
+      console.log('Thanks for accepting the claim', tx);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getClaim = async () => {
+    try {
+      const response = await insuranceContract.getActiveClaims(user.wallet_address);
+      console.log("Getting the claim");
+      console.log('This is your claim', response);
+      setClaimData(response)
+      setShowPayButton(true)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const buyInsurance = async () => {
     try {
@@ -177,22 +219,22 @@ export const AppContextProvider = ({ children }) => {
       const tx = await response.wait();
       console.log('Got The Hospital Licence', tx);
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   };
 
   const fileClaim = async (clientAddress, claimAmount) => {
     console.log(claimAmount);
-    const toWei = claimAmount * (10**18)
-    
+    const toWei = claimAmount * (10 ** 18)
+
     const bigNum = await BigNumber.from(toWei.toString());
     console.log(bigNum);
     try {
-      const response = await insuranceContract.fileClaim(clientAddress, bigNum );
+      const response = await insuranceContract.fileClaim(clientAddress, bigNum);
       const tx = await response.wait();
-      console.log('Got The Hospital Licence', tx);
+      console.log('You successfully filed a claim', tx);
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   };
 
@@ -203,7 +245,7 @@ export const AppContextProvider = ({ children }) => {
     setTransactions(response.data.transactions);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   return (
     <AppContext.Provider
@@ -219,7 +261,18 @@ export const AppContextProvider = ({ children }) => {
         setPlanObject,
         connectWallet,
         buyLicence,
-        fileClaim
+        fileClaim,
+        getClaim,
+        acceptClaim,
+        loginAccount,
+        user,
+        setUser,
+        loginToken,
+        setLoginToken,
+        logout,
+        showPayButton, 
+        setShowPayButton,
+        claimData
       }}
     >
       {children}

@@ -3,7 +3,7 @@ import { AppContext } from './components/AppContext'
 import Navbar from './components/Navbar'
 import styled from 'styled-components'
 
-export const Home = () => {
+export const HomeHospital = () => {
   const { currentWallet, user, setCurrentWallet, updatePlanStatus, planObject, connectWallet } = useContext(AppContext)
   const [input, setInput] = useState("")
 
@@ -57,11 +57,6 @@ export const Home = () => {
             currentWallet ?
               <Row>
                 <label>{currentWallet}</label>
-                {/* <BtnWallet
-                  onClick={() => {
-      
-                  }}
-                >Edit Wallet</BtnWallet> */}
               </Row>
               :
               <Row>
@@ -80,7 +75,7 @@ export const Home = () => {
 
       <div>
         {/* Plan Info */}
-        <CurrentPlanCard>
+        {/* <CurrentPlanCard>
           <h3>Plan</h3>
           {
             planObject.length > 0 ?
@@ -97,7 +92,7 @@ export const Home = () => {
               </Card> :
               <></>
           }
-        </CurrentPlanCard>
+        </CurrentPlanCard> */}
 
         {/* Paymentes */}
         {/* <PaymentsSection>
